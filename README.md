@@ -55,13 +55,3 @@ Assim que os serviços estiverem rodando, eles estarão disponíveis nos seguint
 
     Redis: localhost:6379
 
-🔒 Notas de Segurança
-
-    As credenciais (senhas e chaves de API) no docker-compose.yml atual estão configuradas para um ambiente de desenvolvimento/teste.
-
-    Antes de levar essa infraestrutura para produção, é mandatório substituir as variáveis de ambiente por senhas fortes e, preferencialmente, utilizar um arquivo .env para não expor credenciais no repositório.
-
-
-***
-
-**Gostaria que eu te enviasse também um arquivo `.gitignore` padrão para esse tipo de projeto Docker, garantindo que você não suba arquivos temporários do VS Code para o seu GitHub sem querer?**
