@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. Redis (Usado para cache e filas, essencial para a Evolution API)
   redis:
     image: redis:alpine
     container_name: redis
@@ -11,21 +10,19 @@ services:
     volumes:
       - redis_data:/data
 
-  # 2. PostgreSQL (O banco de dados, motor principal do Supabase)
   postgres:
     image: postgres:15
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: supersecretpassword # Troque por uma senha forte
-      POSTGRES_DB: evolution_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # 3. Evolution API (API de WhatsApp)
   evolution-api:
     image: atendai/evolution-api:latest
     container_name: evolution_api
@@ -35,17 +32,16 @@ services:
     environment:
       - SERVER_URL=http://localhost:8080
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://admin:supersecretpassword@postgres:5432/evolution_db
+      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - REDIS_ENABLED=true
       - REDIS_URI=redis://redis:6379
-      - AUTHENTICATION_API_KEY=sua_chave_de_api_aqui # Defina uma senha para sua API
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
     depends_on:
       - redis
       - postgres
     volumes:
       - evolution_instances:/evolution/instances
 
-  # 4. n8n (Automação de Fluxos)
   n8n:
     image: docker.n8n.io/n8nio/n8n
     container_name: n8n
@@ -57,11 +53,10 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - WEBHOOK_URL=http://localhost:5678/
-      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - GENERIC_TIMEZONE=${TZ}
     volumes:
       - n8n_data:/home/node/.n8n
 
-# Definindo os volumes para os dados não sumirem quando o container reiniciar
 volumes:
   redis_data:
   postgres_data:
